@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionAwareTest extends TestCase
 {
-    use SessionAware;
-
-    public function testIsGettingSession()
-    {
-        $this->session = $this->getMock('Symfony\Component\HttpFoundation\Session\SessionInterface');
-
-        $actual = $this->getSession();
-
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\SessionInterface', $actual);
-    }
-
     public function testIsSettingSession()
     {
-        $sessionMock = $this->getMock('Symfony\Component\HttpFoundation\Session\SessionInterface');
+        $session = $this->prophesize(SessionInterface::class);
 
-        $this->setSession($sessionMock);
+        $controller = new class {
+            use SessionAware;
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\SessionInterface', $this->session);
+            public function test()
+            {
+                return $this->getSession();
+            }
+        };
+        $controller->setSession($session->reveal());
+
+        $actual = $controller->test();
+
+        $this->assertInstanceOf(SessionInterface::class, $actual);
     }
 }
