@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Linio\Common\Symfony\Controller;
 
 use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactory;
-use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 
 trait FormAware
 {
@@ -17,45 +17,28 @@ trait FormAware
      */
     protected $formFactory;
 
-    /**
-     * @return FormFactory
-     */
-    public function getFormFactory()
+    protected function getFormFactory(): FormFactory
     {
         return $this->formFactory;
     }
 
-    /**
-     * @param FormFactory $formFactory
-     */
-    public function setFormFactory(FormFactory $formFactory)
+    public function setFormFactory(FormFactory $formFactory): void
     {
         $this->formFactory = $formFactory;
     }
 
     /**
-     * Creates and returns a Form instance from the type of the form.
-     *
-     * @param string|FormTypeInterface $type    The built type of the form
-     * @param mixed                    $data    The initial data for the form
-     * @param array                    $options Options for the form
-     *
-     * @return Form
+     * @throws InvalidOptionsException if any given option is not applicable to the given type
      */
-    public function createForm($type, $data = null, array $options = [])
+    public function createForm(string $type, $data = null, array $options = []): FormInterface
     {
         return $this->formFactory->create($type, $data, $options);
     }
 
     /**
-     * Creates and returns a form builder instance.
-     *
-     * @param mixed $data    The initial data for the form
-     * @param array $options Options for the form
-     *
-     * @return FormBuilderInterface
+     * @throws InvalidOptionsException if any given option is not applicable to the given type
      */
-    public function createFormBuilder($data = null, array $options = [])
+    public function createFormBuilder($data = null, array $options = []): FormBuilderInterface
     {
         return $this->formFactory->createBuilder(FormType::class, $data, $options);
     }

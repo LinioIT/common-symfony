@@ -15,59 +15,27 @@ trait TemplatingAware
      */
     protected $templating;
 
-    /**
-     * @return EngineInterface
-     */
-    public function getTemplating()
+    protected function getTemplating(): EngineInterface
     {
         return $this->templating;
     }
 
-    /**
-     * @param EngineInterface $templating
-     */
-    public function setTemplating(EngineInterface $templating)
+    public function setTemplating(EngineInterface $templating): void
     {
         $this->templating = $templating;
     }
 
-    /**
-     * Returns a rendered view.
-     *
-     * @param string $view       The view name
-     * @param array  $parameters An array of parameters to pass to the view
-     *
-     * @return string The rendered view
-     */
-    public function renderView($view, array $parameters = [])
+    public function renderView(string $view, array $parameters = []): string
     {
         return $this->templating->render($view, $parameters);
     }
 
-    /**
-     * Renders a view.
-     *
-     * @param string   $view       The view name
-     * @param array    $parameters An array of parameters to pass to the view
-     * @param Response $response   A response instance
-     *
-     * @return Response A Response instance
-     */
-    public function render($view, array $parameters = [], Response $response = null)
+    public function render(string $view, array $parameters = [], Response $response = null): Response
     {
         return $this->templating->renderResponse($view, $parameters, $response);
     }
 
-    /**
-     * Streams a view.
-     *
-     * @param string           $view       The view name
-     * @param array            $parameters An array of parameters to pass to the view
-     * @param StreamedResponse $response   A response instance
-     *
-     * @return StreamedResponse A StreamedResponse instance
-     */
-    public function stream($view, array $parameters = [], StreamedResponse $response = null)
+    public function stream(string $view, array $parameters = [], StreamedResponse $response = null): StreamedResponse
     {
         $templating = $this->templating;
 
@@ -75,7 +43,7 @@ trait TemplatingAware
             $templating->stream($view, $parameters);
         };
 
-        if (null === $response) {
+        if ($response === null) {
             return new StreamedResponse($callback);
         }
 

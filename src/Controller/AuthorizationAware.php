@@ -15,18 +15,12 @@ trait AuthorizationAware
      */
     protected $authorizationChecker;
 
-    /**
-     * @return AuthorizationCheckerInterface
-     */
-    public function getAuthorizationChecker()
+    protected function getAuthorizationChecker(): AuthorizationCheckerInterface
     {
         return $this->authorizationChecker;
     }
 
-    /**
-     * @param AuthorizationCheckerInterface $authorizationChecker
-     */
-    public function setAuthorizationChecker(AuthorizationCheckerInterface $authorizationChecker)
+    public function setAuthorizationChecker(AuthorizationCheckerInterface $authorizationChecker): void
     {
         $this->authorizationChecker = $authorizationChecker;
     }
@@ -34,14 +28,9 @@ trait AuthorizationAware
     /**
      * Checks if the attributes are granted against the current authentication token and optionally supplied object.
      *
-     * @param mixed $attributes The attributes
-     * @param mixed $object     The object
-     *
      * @throws LogicException
-     *
-     * @return bool
      */
-    protected function isGranted($attributes, $object = null)
+    protected function isGranted($attributes, $object = null): bool
     {
         return $this->authorizationChecker->isGranted($attributes, $object);
     }
@@ -50,13 +39,9 @@ trait AuthorizationAware
      * Throws an exception unless the attributes are granted against the current authentication token and optionally
      * supplied object.
      *
-     * @param mixed  $attributes The attributes
-     * @param mixed  $object     The object
-     * @param string $message    The message passed to the exception
-     *
      * @throws AccessDeniedException
      */
-    protected function denyAccessUnlessGranted($attributes, $object = null, $message = 'Access Denied.')
+    protected function denyAccessUnlessGranted($attributes, $object = null, string $message = 'Access Denied.'): void
     {
         if (!$this->isGranted($attributes, $object)) {
             throw new AccessDeniedException($message);

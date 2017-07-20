@@ -13,18 +13,12 @@ trait SessionAware
      */
     protected $session;
 
-    /**
-     * @return SessionInterface
-     */
-    public function getSession()
+    protected function getSession(): SessionInterface
     {
         return $this->session;
     }
 
-    /**
-     * @param SessionInterface $session
-     */
-    public function setSession(SessionInterface $session)
+    public function setSession(SessionInterface $session): void
     {
         $this->session = $session;
     }

@@ -13,30 +13,24 @@ trait FlashMessageAware
      */
     protected $session;
 
+    protected function getSession(): Session
+    {
+        return $this->session;
+    }
+
+    public function setSession(Session $session): void
+    {
+        $this->session = $session;
+    }
+
     /**
      * Adds a flash message to the current session for type.
      *
      * @param string $severity ['success', 'notice', 'warning', 'error']
      * @param string $message
      */
-    protected function addFlash($severity, $message)
+    protected function addFlash(string $severity, string $message): void
     {
         $this->session->getFlashBag()->add($severity, $message);
-    }
-
-    /**
-     * @return Session
-     */
-    public function getSession()
-    {
-        return $this->session;
-    }
-
-    /**
-     * @param Session $session
-     */
-    public function setSession($session)
-    {
-        $this->session = $session;
     }
 }
