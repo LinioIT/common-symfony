@@ -5,48 +5,49 @@ declare(strict_types=1);
 namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class FlashMessageAwareTest extends TestCase
 {
-    use FlashMessageAware;
-
-    public function testIsGettingSession()
-    {
-        $this->session = $this->getMock('Symfony\Component\HttpFoundation\Session\Session');
-
-        $actual = $this->getSession();
-
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Session', $actual);
-    }
-
     public function testIsSettingSession()
     {
-        $sessionMock = $this->getMock('Symfony\Component\HttpFoundation\Session\Session');
+        $session = $this->prophesize(Session::class);
 
-        $this->setSession($sessionMock);
+        $controller = new class {
+            use FlashMessageAware;
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Session', $this->session);
+            public function test()
+            {
+                return $this->getSession();
+            }
+        };
+        $controller->setSession($session->reveal());
+
+        $actual = $controller->test();
+
+        $this->assertInstanceOf(Session::class, $actual);
     }
 
     public function testIsAddingFlashMessage()
     {
-        $type = 'notice';
-        $message = 'Foo bar';
+        $flashBag = new FlashBag();
 
-        $flashBagMock = $this->getMock('Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface');
-        $flashBagMock->expects($this->once())
-            ->method('add')
-            ->with($type, $message);
+        $session = $this->prophesize(Session::class);
+        $session->getFlashBag()->willReturn($flashBag);
 
-        $sessionMock = $this->getMockBuilder('Symfony\Component\HttpFoundation\Session\Session')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $sessionMock->expects($this->once())
-            ->method('getFlashBag')
-            ->willReturn($flashBagMock);
+        $controller = new class {
+            use FlashMessageAware;
 
-        $this->session = $sessionMock;
+            public function test($severity, $message)
+            {
+                return $this->addFlash($severity, $message);
+            }
+        };
+        $controller->setSession($session->reveal());
 
-        $this->addFlash($type, $message);
+        $controller->test('notice', 'Foo bar');
+
+        $this->assertSame(['Foo bar'], $flashBag->get('notice'));
     }
 }
