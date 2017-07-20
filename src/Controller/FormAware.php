@@ -6,23 +6,23 @@ namespace Linio\Common\Symfony\Controller;
 
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 
 trait FormAware
 {
     /**
-     * @var FormFactory
+     * @var FormFactoryInterface
      */
     protected $formFactory;
 
-    protected function getFormFactory(): FormFactory
+    protected function getFormFactory(): FormFactoryInterface
     {
         return $this->formFactory;
     }
 
-    public function setFormFactory(FormFactory $formFactory): void
+    public function setFormFactory(FormFactoryInterface $formFactory): void
     {
         $this->formFactory = $formFactory;
     }
