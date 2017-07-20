@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Linio\Common\Symfony\Controller;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\Test\FormBuilderInterface;
 
-class FormAwareTest extends \PHPUnit_Framework_TestCase
+class FormAwareTest extends TestCase
 {
     use FormAware;
 

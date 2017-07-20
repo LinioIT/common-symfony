@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Linio\Common\Symfony\Controller;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class RouterAwareTest extends \PHPUnit_Framework_TestCase
+class RouterAwareTest extends TestCase
 {
     use RouterAware;
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Linio\Common\Symfony\Controller;
 
-class FlashMessageAwareTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FlashMessageAwareTest extends TestCase
 {
     use FlashMessageAware;
 
