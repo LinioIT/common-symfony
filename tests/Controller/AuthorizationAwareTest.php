@@ -5,85 +5,105 @@ declare(strict_types=1);
 namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AuthorizationAwareTest extends TestCase
 {
-    use AuthorizationAware;
-
-    public function testIsGettingAuthorizationChecker()
+    public function testIsSettingAuthorizationChecker()
     {
-        $this->authorizationChecker = $this->getMockBuilder('\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')
-            ->getMock();
+        $authorizationChecker = $this->prophesize(AuthorizationCheckerInterface::class);
 
-        $actual = $this->getAuthorizationChecker();
+        $controller = new class {
+            use AuthorizationAware;
 
-        $this->assertInstanceOf('\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface', $actual);
+            public function test()
+            {
+                return $this->getAuthorizationChecker();
+            }
+        };
+        $controller->setAuthorizationChecker($authorizationChecker->reveal());
+
+        $actual = $controller->test();
+
+        $this->assertInstanceOf(AuthorizationCheckerInterface::class, $actual);
     }
 
-    public function testIsSettingFormFactory()
+    public function testIsGrantedARoleIsTrue()
     {
-        $mockAuthorizationChecker = $this->getMockBuilder('\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')
-            ->getMock();
+        $authorizationChecker = $this->prophesize(AuthorizationCheckerInterface::class);
+        $authorizationChecker->isGranted('ROLE_TEST', null)->willReturn(true);
 
-        $this->setAuthorizationChecker($mockAuthorizationChecker);
+        $controller = new class {
+            use AuthorizationAware;
 
-        $this->assertInstanceOf('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface', $this->authorizationChecker);
-    }
+            public function test($role)
+            {
+                return $this->isGranted($role);
+            }
+        };
+        $controller->setAuthorizationChecker($authorizationChecker->reveal());
 
-    public function testIsCheckingGrantedTrue()
-    {
-        $mockAuthorizationChecker = $this->getMockBuilder('\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')
-            ->getMock();
-
-        $this->authorizationChecker = $mockAuthorizationChecker;
-
-        $this->authorizationChecker->method('isGranted')->with('ROLE_TEST')->willReturn(true);
-
-        $actual = $this->isGranted('ROLE_TEST');
+        $actual = $controller->test('ROLE_TEST');
 
         $this->assertTrue($actual);
     }
 
-    public function testIsCheckingGrantedFalse()
+    public function testIsGrantedARoleIsFalse()
     {
-        $mockAuthorizationChecker = $this->getMockBuilder('\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')
-            ->getMock();
+        $authorizationChecker = $this->prophesize(AuthorizationCheckerInterface::class);
+        $authorizationChecker->isGranted('ROLE_TEST', null)->willReturn(false);
 
-        $this->authorizationChecker = $mockAuthorizationChecker;
+        $controller = new class {
+            use AuthorizationAware;
 
-        $this->authorizationChecker->method('isGranted')->with('ROLE_TEST')->willReturn(false);
+            public function test($role)
+            {
+                return $this->isGranted($role);
+            }
+        };
+        $controller->setAuthorizationChecker($authorizationChecker->reveal());
 
-        $actual = $this->isGranted('ROLE_TEST');
+        $actual = $controller->test('ROLE_TEST');
 
         $this->assertFalse($actual);
     }
 
-    /**
-     * @expectedException \Symfony\Component\Security\Core\Exception\AccessDeniedException
-     */
-    public function testDenyAccessUnlessGrantedDenied()
+    public function testItDeniesAccessWhenNotGrantedRole()
     {
-        $mockAuthorizationChecker = $this->getMockBuilder('\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')
-            ->getMock();
+        $authorizationChecker = $this->prophesize(AuthorizationCheckerInterface::class);
+        $authorizationChecker->isGranted('ROLE_TEST', null)->willReturn(false);
 
-        $this->authorizationChecker = $mockAuthorizationChecker;
+        $controller = new class {
+            use AuthorizationAware;
 
-        $this->authorizationChecker->method('isGranted')->with('ROLE_TEST')->willReturn(false);
+            public function test($role)
+            {
+                return $this->denyAccessUnlessGranted($role);
+            }
+        };
+        $controller->setAuthorizationChecker($authorizationChecker->reveal());
 
-        $actual = $this->denyAccessUnlessGranted('ROLE_TEST');
+        $this->expectException(AccessDeniedException::class);
+        $controller->test('ROLE_TEST');
     }
 
-    public function testDenyAccessUnlessGrantedAllowed()
+    public function testItAllowsAccessWhenGrantedRole()
     {
-        $mockAuthorizationChecker = $this->getMockBuilder('\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')
-            ->getMock();
+        $authorizationChecker = $this->prophesize(AuthorizationCheckerInterface::class);
+        $authorizationChecker->isGranted('ROLE_TEST', null)->willReturn(true);
 
-        $this->authorizationChecker = $mockAuthorizationChecker;
+        $controller = new class {
+            use AuthorizationAware;
 
-        $this->authorizationChecker->method('isGranted')->with('ROLE_TEST')->willReturn(true);
+            public function test($role)
+            {
+                return $this->denyAccessUnlessGranted($role);
+            }
+        };
+        $controller->setAuthorizationChecker($authorizationChecker->reveal());
 
-        $actual = $this->denyAccessUnlessGranted('ROLE_TEST');
-
+        $actual = $controller->test('ROLE_TEST');
         $this->assertNull($actual);
     }
 }
