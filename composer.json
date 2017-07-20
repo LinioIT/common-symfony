@@ -5,7 +5,7 @@
     "type": "library",
     "license": "BSD-3-Clause",
     "require": {
-        "php": ">=7.0",
+        "php": ">=7.1",
         "symfony/form": "^2.8|^3.0",
         "symfony/routing": "^2.8|^3.0",
         "symfony/framework-bundle": "^2.8|^3.0",
