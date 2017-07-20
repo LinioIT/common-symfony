@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Linio\Controller;
+namespace Linio\Common\Symfony\Controller;
 
 use Symfony\Component\HttpFoundation\Session\Session;
 

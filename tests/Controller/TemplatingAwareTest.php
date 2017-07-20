@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Linio\Controller;
+namespace Linio\Common\Symfony\Controller;
 
 class TemplatingAwareTest extends \PHPUnit_Framework_TestCase
 {
