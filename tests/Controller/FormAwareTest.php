@@ -6,77 +6,73 @@ namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\Test\FormBuilderInterface;
 
 class FormAwareTest extends TestCase
 {
-    use FormAware;
-
-    public function testIsGettingFormFactory()
-    {
-        $this->formFactory = $this->getMockBuilder(FormFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $actual = $this->getFormFactory();
-
-        $this->assertInstanceOf(FormFactory::class, $actual);
-    }
-
     public function testIsSettingFormFactory()
     {
-        $mockFormFactory = $this->getMockBuilder(FormFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $formFactory = $this->prophesize(FormFactoryInterface::class);
 
-        $this->setFormFactory($mockFormFactory);
+        $controller = new class {
+            use FormAware;
 
-        $this->assertInstanceOf(FormFactory::class, $this->formFactory);
+            public function test()
+            {
+                return $this->getFormFactory();
+            }
+        };
+        $controller->setFormFactory($formFactory->reveal());
+
+        $actual = $controller->test();
+
+        $this->assertInstanceOf(FormFactoryInterface::class, $actual);
     }
 
     public function testIsCreatingForm()
     {
-        $mockForm = $this->getMockBuilder(Form::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $form = $this->prophesize(FormInterface::class);
 
-        $mockFormFactory = $this->getMockBuilder(FormFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $formFactory = $this->prophesize(FormFactoryInterface::class);
+        $formFactory->create(FormType::class, ['initial_data' => 'initial_data'], ['options' => 'options'])
+            ->willReturn($form->reveal());
 
-        $mockFormFactory->expects($this->once())
-            ->method('create')
-            ->with($this->equalTo(FormType::class), $this->equalTo(['initial_data' => 'initial_data']), $this->equalTo(['options' => 'options']))
-            ->will($this->returnValue($mockForm));
+        $controller = new class {
+            use FormAware;
 
-        $this->formFactory = $mockFormFactory;
+            public function test($type, $data, $options)
+            {
+                return $this->createForm($type, $data, $options);
+            }
+        };
+        $controller->setFormFactory($formFactory->reveal());
 
-        $actual = $this->createForm(FormType::class, ['initial_data' => 'initial_data'], ['options' => 'options']);
+        $actual = $controller->test(FormType::class, ['initial_data' => 'initial_data'], ['options' => 'options']);
 
-        $this->assertInstanceOf(Form::class, $actual);
+        $this->assertInstanceOf(FormInterface::class, $actual);
     }
 
     public function testIsCreatingFormBuilder()
     {
-        $mockFormBuilder = $this->getMockBuilder(FormBuilderInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $formBuilder = $this->prophesize(FormBuilderInterface::class);
 
-        $mockFormFactory = $this->getMockBuilder(FormFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $formFactory = $this->prophesize(FormFactoryInterface::class);
+        $formFactory->createBuilder(FormType::class, ['initial_data' => 'initial_data'], ['options' => 'options'])
+            ->willReturn($formBuilder->reveal());
 
-        $mockFormFactory
-            ->expects($this->once())
-            ->method('createBuilder')
-            ->with($this->equalTo(FormType::class), $this->equalTo(['initial_data' => 'initial_data']), $this->equalTo(['options' => 'options']))
-            ->will($this->returnValue($mockFormBuilder));
+        $controller = new class {
+            use FormAware;
 
-        $this->formFactory = $mockFormFactory;
+            public function test($data, $options)
+            {
+                return $this->createFormBuilder($data, $options);
+            }
+        };
+        $controller->setFormFactory($formFactory->reveal());
 
-        $actual = $this->createFormBuilder(['initial_data' => 'initial_data'], ['options' => 'options']);
+        $actual = $controller->test(['initial_data' => 'initial_data'], ['options' => 'options']);
 
         $this->assertInstanceOf(FormBuilderInterface::class, $actual);
     }
