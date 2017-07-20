@@ -91,7 +91,7 @@ class AuthorizationAwareTest extends TestCase
     public function testItAllowsAccessWhenGrantedRole()
     {
         $authorizationChecker = $this->prophesize(AuthorizationCheckerInterface::class);
-        $authorizationChecker->isGranted('ROLE_TEST', null)->willReturn(true);
+        $authorizationChecker->isGranted('ROLE_TEST', null)->shouldBeCalled()->willReturn(true);
 
         $controller = new class {
             use AuthorizationAware;
@@ -103,7 +103,6 @@ class AuthorizationAwareTest extends TestCase
         };
         $controller->setAuthorizationChecker($authorizationChecker->reveal());
 
-        $actual = $controller->test('ROLE_TEST');
-        $this->assertNull($actual);
+        $controller->test('ROLE_TEST');
     }
 }
