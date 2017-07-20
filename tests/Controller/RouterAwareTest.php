@@ -5,130 +5,164 @@ declare(strict_types=1);
 namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 class RouterAwareTest extends TestCase
 {
     use RouterAware;
 
-    public function testIsGettingRouter()
+    public function testIsSettingAuthorizationChecker()
     {
-        $this->router = $this->getMockBuilder('\Symfony\Component\Routing\RouterInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $router = $this->prophesize(RouterInterface::class);
 
-        $actual = $this->getRouter();
+        $controller = new class {
+            use RouterAware;
 
-        $this->assertInstanceOf('\Symfony\Component\Routing\RouterInterface', $actual);
-    }
+            public function test()
+            {
+                return $this->getRouter();
+            }
+        };
+        $controller->setRouter($router->reveal());
 
-    public function testIsSettingRouter()
-    {
-        $mockRouterInterface = $this->getMockBuilder('\Symfony\Component\Routing\RouterInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $actual = $controller->test();
 
-        $this->setRouter($mockRouterInterface);
-
-        $this->assertInstanceOf('\Symfony\Component\Routing\RouterInterface', $this->router);
+        $this->assertInstanceOf(RouterInterface::class, $actual);
     }
 
     public function testIsGeneratingUrl()
     {
-        $mockRouterInterface = $this->getMockBuilder('\Symfony\Component\Routing\RouterInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $router = $this->prophesize(RouterInterface::class);
+        $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
+            ->willReturn('generated_url');
 
-        $mockRouterInterface->expects($this->once())
-            ->method('generate')
-            ->with($this->equalTo('route'), $this->equalTo(['parameters' => 'parameters']), 'reference_type')
-            ->will($this->returnValue('generated_url'));
+        $controller = new class {
+            use RouterAware;
 
-        $this->router = $mockRouterInterface;
+            public function test($route, $parameters, $referenceType)
+            {
+                return $this->generateUrl($route, $parameters, $referenceType);
+            }
+        };
+        $controller->setRouter($router->reveal());
 
-        $actual = $this->generateUrl('route', ['parameters' => 'parameters'], 'reference_type');
+        $actual = $controller->test('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH);
 
-        $this->assertEquals('generated_url', $actual);
+        $this->assertSame('generated_url', $actual);
     }
 
     public function testIsGeneratingUrlWithoutReferenceTypeParam()
     {
-        $mockRouterInterface = $this->getMockBuilder('\Symfony\Component\Routing\RouterInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $router = $this->prophesize(RouterInterface::class);
+        $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
+            ->willReturn('generated_url');
 
-        $mockRouterInterface->expects($this->once())
-            ->method('generate')
-            ->with($this->equalTo('route'), $this->equalTo(['parameters' => 'parameters']), $this->equalTo(UrlGeneratorInterface::ABSOLUTE_PATH))
-            ->will($this->returnValue('generated_url'));
+        $controller = new class {
+            use RouterAware;
 
-        $this->router = $mockRouterInterface;
+            public function test($route, $parameters)
+            {
+                return $this->generateUrl($route, $parameters);
+            }
+        };
+        $controller->setRouter($router->reveal());
 
-        $actual = $this->generateUrl('route', ['parameters' => 'parameters']);
+        $actual = $controller->test('route', ['parameters' => 'parameters']);
 
-        $this->assertEquals('generated_url', $actual);
+        $this->assertSame('generated_url', $actual);
     }
 
     public function testIsCreatingRedirectResponse()
     {
+        $router = $this->prophesize(RouterInterface::class);
+
+        $controller = new class {
+            use RouterAware;
+
+            public function test($url)
+            {
+                return $this->redirect($url);
+            }
+        };
+        $controller->setRouter($router->reveal());
+
         $redirectUrl = 'http://test.local/redirect';
 
-        $result = $this->redirect($redirectUrl);
+        $actual = $controller->test($redirectUrl);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\RedirectResponse', $result);
-        $this->assertEquals($redirectUrl, $result->getTargetUrl());
-        $this->assertEquals(302, $result->getStatusCode());
+        $this->assertInstanceOf(RedirectResponse::class, $actual);
+        $this->assertSame($redirectUrl, $actual->getTargetUrl());
+        $this->assertSame(302, $actual->getStatusCode());
     }
 
     public function testIsCreatingRedirectResponseWithCustomStatusCode()
     {
+        $router = $this->prophesize(RouterInterface::class);
+
+        $controller = new class {
+            use RouterAware;
+
+            public function test($url, $statusCode)
+            {
+                return $this->redirect($url, $statusCode);
+            }
+        };
+        $controller->setRouter($router->reveal());
+
         $redirectUrl = 'http://test.local/redirect';
-        $statusCode = 301;
 
-        $result = $this->redirect($redirectUrl, $statusCode);
+        $actual = $controller->test($redirectUrl, 302);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\RedirectResponse', $result);
-        $this->assertEquals($redirectUrl, $result->getTargetUrl());
-        $this->assertEquals($statusCode, $result->getStatusCode());
+        $this->assertInstanceOf(RedirectResponse::class, $actual);
+        $this->assertSame($redirectUrl, $actual->getTargetUrl());
+        $this->assertSame(302, $actual->getStatusCode());
     }
 
     public function testIsCreatingRedirectResponseToRoute()
     {
-        $mockRouterInterface = $this->getMockBuilder('\Symfony\Component\Routing\RouterInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $router = $this->prophesize(RouterInterface::class);
+        $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
+            ->willReturn('generated_url');
 
-        $mockRouterInterface->expects($this->once())
-            ->method('generate')
-            ->with($this->equalTo('route'), $this->equalTo(['parameters' => 'parameters']), $this->equalTo(UrlGeneratorInterface::ABSOLUTE_PATH))
-            ->will($this->returnValue('generated_url'));
+        $controller = new class {
+            use RouterAware;
 
-        $this->router = $mockRouterInterface;
+            public function test($route, $parameters)
+            {
+                return $this->redirectToRoute($route, $parameters);
+            }
+        };
+        $controller->setRouter($router->reveal());
 
-        $result = $this->redirectToRoute('route', ['parameters' => 'parameters']);
+        $actual = $controller->test('route', ['parameters' => 'parameters']);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\RedirectResponse', $result);
-        $this->assertEquals('generated_url', $result->getTargetUrl());
-        $this->assertEquals(302, $result->getStatusCode());
+        $this->assertInstanceOf(RedirectResponse::class, $actual);
+        $this->assertSame('generated_url', $actual->getTargetUrl());
+        $this->assertSame(302, $actual->getStatusCode());
     }
 
     public function testIsCreatingRedirectResponseToRouteWithCustomStatusCode()
     {
-        $mockRouterInterface = $this->getMockBuilder('\Symfony\Component\Routing\RouterInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $router = $this->prophesize(RouterInterface::class);
+        $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
+            ->willReturn('generated_url');
 
-        $mockRouterInterface->expects($this->once())
-            ->method('generate')
-            ->with($this->equalTo('route'), $this->equalTo(['parameters' => 'parameters']), $this->equalTo(UrlGeneratorInterface::ABSOLUTE_PATH))
-            ->will($this->returnValue('generated_url'));
+        $controller = new class {
+            use RouterAware;
 
-        $this->router = $mockRouterInterface;
+            public function test($route, $parameters, $statusCode)
+            {
+                return $this->redirectToRoute($route, $parameters, $statusCode);
+            }
+        };
+        $controller->setRouter($router->reveal());
 
-        $result = $this->redirectToRoute('route', ['parameters' => 'parameters'], 301);
+        $actual = $controller->test('route', ['parameters' => 'parameters'], 301);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\RedirectResponse', $result);
-        $this->assertEquals('generated_url', $result->getTargetUrl());
-        $this->assertEquals(301, $result->getStatusCode());
+        $this->assertInstanceOf(RedirectResponse::class, $actual);
+        $this->assertSame('generated_url', $actual->getTargetUrl());
+        $this->assertSame(301, $actual->getStatusCode());
     }
 }
