@@ -18,12 +18,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Linio\\Common\\Symfony": "src/"
+            "Linio\\Common\\Symfony\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Linio\\Common\\Symfony": "tests/"
+            "Linio\\Common\\Symfony\\": "tests/"
         }
     }
 }
