@@ -5,104 +5,91 @@ declare(strict_types=1);
 namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TemplatingAwareTest extends TestCase
 {
-    use TemplatingAware;
-
-    public function testIsGettingTemplating()
+    public function testIsSettingAuthorizationChecker()
     {
-        $this->templating = $this->getMockBuilder('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $templating = $this->prophesize(EngineInterface::class);
 
-        $actual = $this->getTemplating();
+        $controller = new class {
+            use TemplatingAware;
 
-        $this->assertInstanceOf('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface', $actual);
-    }
+            public function test()
+            {
+                return $this->getTemplating();
+            }
+        };
+        $controller->setTemplating($templating->reveal());
 
-    public function testIsSettingTemplating()
-    {
-        $mockTemplating = $this->getMockBuilder('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $actual = $controller->test();
 
-        $this->setTemplating($mockTemplating);
-
-        $this->assertInstanceOf('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface', $this->templating);
+        $this->assertInstanceOf(EngineInterface::class, $actual);
     }
 
     public function testIsRenderingView()
     {
-        $mockTemplating = $this->getMockBuilder('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $templating = $this->prophesize(EngineInterface::class);
+        $templating->render('view', ['parameters' => 'parameters'])
+            ->willReturn('rendered_view');
 
-        $mockTemplating->expects($this->once())
-            ->method('render')
-            ->with($this->equalTo('route'), $this->equalTo(['parameters' => 'parameters']))
-            ->will($this->returnValue('rendered_view'));
+        $controller = new class {
+            use TemplatingAware;
 
-        $this->templating = $mockTemplating;
+            public function test($view, $parameters)
+            {
+                return $this->renderView($view, $parameters);
+            }
+        };
+        $controller->setTemplating($templating->reveal());
 
-        $actual = $this->renderView('route', ['parameters' => 'parameters']);
+        $actual = $controller->test('view', ['parameters' => 'parameters']);
 
-        $this->assertEquals('rendered_view', $actual);
+        $this->assertSame('rendered_view', $actual);
     }
 
-    public function testIsRendering()
+    public function testIsRenderingAResponse()
     {
-        $mockResponse = $this->getMockBuilder('\Symfony\Component\HttpFoundation\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $templating = $this->prophesize(EngineInterface::class);
+        $templating->renderResponse('view', ['parameters' => 'parameters'], null)
+            ->shouldBeCalled()
+            ->willReturn(new Response('rendered_view'));
 
-        $mockTemplating = $this->getMockBuilder('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $controller = new class {
+            use TemplatingAware;
 
-        $mockTemplating->expects($this->once())
-            ->method('renderResponse')
-            ->with($this->equalTo('view'), $this->equalTo(['parameters' => 'parameters']), $this->equalTo($mockResponse))
-            ->will($this->returnValue($mockResponse));
+            public function test($view, $parameters)
+            {
+                return $this->render($view, $parameters);
+            }
+        };
+        $controller->setTemplating($templating->reveal());
 
-        $this->templating = $mockTemplating;
+        $actual = $controller->test('view', ['parameters' => 'parameters']);
 
-        $actual = $this->render('view', ['parameters' => 'parameters'], $mockResponse);
-
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $actual);
+        $this->assertInstanceOf(Response::class, $actual);
+        $this->assertSame('rendered_view', $actual->getContent());
     }
 
     public function testIsStreaming()
     {
-        $mockStreamedResponse = $this->getMockBuilder('\Symfony\Component\HttpFoundation\StreamedResponse')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $templating = $this->prophesize(EngineInterface::class);
 
-        $mockStreamedResponse->expects($this->once())
-            ->method('setCallback')
-            ->will($this->returnValue(true));
+        $controller = new class {
+            use TemplatingAware;
 
-        $mockTemplating = $this->getMockBuilder('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
+            public function test($view, $parameters)
+            {
+                return $this->stream($view, $parameters);
+            }
+        };
+        $controller->setTemplating($templating->reveal());
 
-        $this->templating = $mockTemplating;
+        $actual = $controller->test('view', ['parameters' => 'parameters']);
 
-        $actual = $this->stream('view', ['parameters' => 'parameters'], $mockStreamedResponse);
-
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\StreamedResponse', $actual);
-    }
-
-    public function testIsStreamingWithNullResponseParameter()
-    {
-        $mockTemplating = $this->getMockBuilder('\Symfony\Bundle\FrameworkBundle\Templating\EngineInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->templating = $mockTemplating;
-
-        $actual = $this->stream('view', ['parameters' => 'parameters']);
-
-        $this->assertInstanceOf('\Symfony\Component\HttpFoundation\StreamedResponse', $actual);
+        $this->assertInstanceOf(StreamedResponse::class, $actual);
     }
 }
