@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TemplatingAwareTest extends TestCase
 {
-    public function testIsSettingAuthorizationChecker()
+    public function testIsSettingTemplating()
     {
         $templating = $this->prophesize(EngineInterface::class);
 

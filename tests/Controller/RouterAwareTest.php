@@ -13,7 +13,7 @@ class RouterAwareTest extends TestCase
 {
     use RouterAware;
 
-    public function testIsSettingAuthorizationChecker()
+    public function testIsSettingRouter()
     {
         $router = $this->prophesize(RouterInterface::class);
 
