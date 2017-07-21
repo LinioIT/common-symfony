@@ -39,7 +39,7 @@ trait TemplatingAware
     {
         $templating = $this->templating;
 
-        $callback = function () use ($templating, $view, $parameters) {
+        $callback = function () use ($templating, $view, $parameters): void {
             $templating->stream($view, $parameters);
         };
 

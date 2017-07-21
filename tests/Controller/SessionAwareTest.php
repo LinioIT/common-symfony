@@ -9,11 +9,11 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionAwareTest extends TestCase
 {
-    public function testIsSettingSession()
+    public function testIsSettingSession(): void
     {
         $session = $this->prophesize(SessionInterface::class);
 
-        $controller = new class {
+        $controller = new class() {
             use SessionAware;
 
             public function test()

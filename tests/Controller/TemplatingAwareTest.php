@@ -11,11 +11,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TemplatingAwareTest extends TestCase
 {
-    public function testIsSettingTemplating()
+    public function testIsSettingTemplating(): void
     {
         $templating = $this->prophesize(EngineInterface::class);
 
-        $controller = new class {
+        $controller = new class() {
             use TemplatingAware;
 
             public function test()
@@ -30,13 +30,13 @@ class TemplatingAwareTest extends TestCase
         $this->assertInstanceOf(EngineInterface::class, $actual);
     }
 
-    public function testIsRenderingView()
+    public function testIsRenderingView(): void
     {
         $templating = $this->prophesize(EngineInterface::class);
         $templating->render('view', ['parameters' => 'parameters'])
             ->willReturn('rendered_view');
 
-        $controller = new class {
+        $controller = new class() {
             use TemplatingAware;
 
             public function test($view, $parameters)
@@ -51,14 +51,14 @@ class TemplatingAwareTest extends TestCase
         $this->assertSame('rendered_view', $actual);
     }
 
-    public function testIsRenderingAResponse()
+    public function testIsRenderingAResponse(): void
     {
         $templating = $this->prophesize(EngineInterface::class);
         $templating->renderResponse('view', ['parameters' => 'parameters'], null)
             ->shouldBeCalled()
             ->willReturn(new Response('rendered_view'));
 
-        $controller = new class {
+        $controller = new class() {
             use TemplatingAware;
 
             public function test($view, $parameters)
@@ -74,11 +74,11 @@ class TemplatingAwareTest extends TestCase
         $this->assertSame('rendered_view', $actual->getContent());
     }
 
-    public function testIsStreaming()
+    public function testIsStreaming(): void
     {
         $templating = $this->prophesize(EngineInterface::class);
 
-        $controller = new class {
+        $controller = new class() {
             use TemplatingAware;
 
             public function test($view, $parameters)

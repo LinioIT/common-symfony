@@ -6,18 +6,17 @@ namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class RouterAwareTest extends TestCase
 {
     use RouterAware;
 
-    public function testIsSettingRouter()
+    public function testIsSettingRouter(): void
     {
         $router = $this->prophesize(RouterInterface::class);
 
-        $controller = new class {
+        $controller = new class() {
             use RouterAware;
 
             public function test()
@@ -32,13 +31,13 @@ class RouterAwareTest extends TestCase
         $this->assertInstanceOf(RouterInterface::class, $actual);
     }
 
-    public function testIsGeneratingUrl()
+    public function testIsGeneratingUrl(): void
     {
         $router = $this->prophesize(RouterInterface::class);
         $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('generated_url');
 
-        $controller = new class {
+        $controller = new class() {
             use RouterAware;
 
             public function test($route, $parameters, $referenceType)
@@ -53,13 +52,13 @@ class RouterAwareTest extends TestCase
         $this->assertSame('generated_url', $actual);
     }
 
-    public function testIsGeneratingUrlWithoutReferenceTypeParam()
+    public function testIsGeneratingUrlWithoutReferenceTypeParam(): void
     {
         $router = $this->prophesize(RouterInterface::class);
         $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('generated_url');
 
-        $controller = new class {
+        $controller = new class() {
             use RouterAware;
 
             public function test($route, $parameters)
@@ -74,11 +73,11 @@ class RouterAwareTest extends TestCase
         $this->assertSame('generated_url', $actual);
     }
 
-    public function testIsCreatingRedirectResponse()
+    public function testIsCreatingRedirectResponse(): void
     {
         $router = $this->prophesize(RouterInterface::class);
 
-        $controller = new class {
+        $controller = new class() {
             use RouterAware;
 
             public function test($url)
@@ -97,11 +96,11 @@ class RouterAwareTest extends TestCase
         $this->assertSame(302, $actual->getStatusCode());
     }
 
-    public function testIsCreatingRedirectResponseWithCustomStatusCode()
+    public function testIsCreatingRedirectResponseWithCustomStatusCode(): void
     {
         $router = $this->prophesize(RouterInterface::class);
 
-        $controller = new class {
+        $controller = new class() {
             use RouterAware;
 
             public function test($url, $statusCode)
@@ -120,13 +119,13 @@ class RouterAwareTest extends TestCase
         $this->assertSame(302, $actual->getStatusCode());
     }
 
-    public function testIsCreatingRedirectResponseToRoute()
+    public function testIsCreatingRedirectResponseToRoute(): void
     {
         $router = $this->prophesize(RouterInterface::class);
         $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('generated_url');
 
-        $controller = new class {
+        $controller = new class() {
             use RouterAware;
 
             public function test($route, $parameters)
@@ -143,13 +142,13 @@ class RouterAwareTest extends TestCase
         $this->assertSame(302, $actual->getStatusCode());
     }
 
-    public function testIsCreatingRedirectResponseToRouteWithCustomStatusCode()
+    public function testIsCreatingRedirectResponseToRouteWithCustomStatusCode(): void
     {
         $router = $this->prophesize(RouterInterface::class);
         $router->generate('route', ['parameters' => 'parameters'], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('generated_url');
 
-        $controller = new class {
+        $controller = new class() {
             use RouterAware;
 
             public function test($route, $parameters, $statusCode)

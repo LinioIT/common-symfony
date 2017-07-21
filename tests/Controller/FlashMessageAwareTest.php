@@ -10,11 +10,11 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 class FlashMessageAwareTest extends TestCase
 {
-    public function testIsSettingSession()
+    public function testIsSettingSession(): void
     {
         $session = $this->prophesize(Session::class);
 
-        $controller = new class {
+        $controller = new class() {
             use FlashMessageAware;
 
             public function test()
@@ -29,14 +29,14 @@ class FlashMessageAwareTest extends TestCase
         $this->assertInstanceOf(Session::class, $actual);
     }
 
-    public function testIsAddingFlashMessage()
+    public function testIsAddingFlashMessage(): void
     {
         $flashBag = new FlashBag();
 
         $session = $this->prophesize(Session::class);
         $session->getFlashBag()->willReturn($flashBag);
 
-        $controller = new class {
+        $controller = new class() {
             use FlashMessageAware;
 
             public function test($severity, $message)

@@ -12,11 +12,11 @@ use Symfony\Component\Form\Test\FormBuilderInterface;
 
 class FormAwareTest extends TestCase
 {
-    public function testIsSettingFormFactory()
+    public function testIsSettingFormFactory(): void
     {
         $formFactory = $this->prophesize(FormFactoryInterface::class);
 
-        $controller = new class {
+        $controller = new class() {
             use FormAware;
 
             public function test()
@@ -31,7 +31,7 @@ class FormAwareTest extends TestCase
         $this->assertInstanceOf(FormFactoryInterface::class, $actual);
     }
 
-    public function testIsCreatingForm()
+    public function testIsCreatingForm(): void
     {
         $form = $this->prophesize(FormInterface::class);
 
@@ -39,7 +39,7 @@ class FormAwareTest extends TestCase
         $formFactory->create(FormType::class, ['initial_data' => 'initial_data'], ['options' => 'options'])
             ->willReturn($form->reveal());
 
-        $controller = new class {
+        $controller = new class() {
             use FormAware;
 
             public function test($type, $data, $options)
@@ -54,7 +54,7 @@ class FormAwareTest extends TestCase
         $this->assertInstanceOf(FormInterface::class, $actual);
     }
 
-    public function testIsCreatingFormBuilder()
+    public function testIsCreatingFormBuilder(): void
     {
         $formBuilder = $this->prophesize(FormBuilderInterface::class);
 
@@ -62,7 +62,7 @@ class FormAwareTest extends TestCase
         $formFactory->createBuilder(FormType::class, ['initial_data' => 'initial_data'], ['options' => 'options'])
             ->willReturn($formBuilder->reveal());
 
-        $controller = new class {
+        $controller = new class() {
             use FormAware;
 
             public function test($data, $options)
