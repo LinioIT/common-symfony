@@ -27,7 +27,6 @@ trait FlashMessageAware
      * Adds a flash message to the current session for type.
      *
      * @param string $severity ['success', 'notice', 'warning', 'error']
-     * @param string $message
      */
     protected function addFlash(string $severity, string $message): void
     {
