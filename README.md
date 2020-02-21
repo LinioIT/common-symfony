@@ -37,3 +37,4 @@ traits available:
 * `RouterAware`: allows you to use the `symfony/routing` component and provides helpers
 * `SessionAware`: allows you to use the `symfony/http-foundation/session` component and provides helpers
 * `TemplatingAware`: allows you to use the `symfony/templating` component and provides helpers
+* `TwigAware`: allows you to use the `Twig\Environment` component and provides helpers
