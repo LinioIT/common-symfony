@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Linio\Common\Symfony\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -54,9 +54,9 @@ class TemplatingAwareTest extends TestCase
     public function testIsRenderingAResponse(): void
     {
         $templating = $this->prophesize(EngineInterface::class);
-        $templating->renderResponse('view', ['parameters' => 'parameters'], null)
+        $templating->render('view', ['parameters' => 'parameters'])
             ->shouldBeCalled()
-            ->willReturn(new Response('rendered_view'));
+            ->willReturn('rendered_view');
 
         $controller = new class() {
             use TemplatingAware;
