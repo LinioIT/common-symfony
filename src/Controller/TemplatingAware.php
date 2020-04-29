@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Linio\Common\Symfony\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Templating\EngineInterface;
 
 trait TemplatingAware
 {
@@ -30,9 +30,9 @@ trait TemplatingAware
         return $this->templating->render($view, $parameters);
     }
 
-    public function render(string $view, array $parameters = [], Response $response = null): Response
+    public function render(string $view, array $parameters = []): Response
     {
-        return $this->templating->renderResponse($view, $parameters, $response);
+        return new Response($this->templating->render($view, $parameters));
     }
 
     public function stream(string $view, array $parameters = [], StreamedResponse $response = null): StreamedResponse
