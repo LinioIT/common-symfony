@@ -30,7 +30,7 @@ trait TemplatingAware
         return $this->templating->render($view, $parameters);
     }
 
-    public function render(string $view, array $parameters = [], Response $response = null): Response
+    public function render(string $view, array $parameters = []): Response
     {
         return new Response($this->templating->render($view, $parameters));
     }
