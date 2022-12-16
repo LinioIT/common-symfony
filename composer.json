@@ -8,7 +8,7 @@
         "php": ">=7.1",
         "symfony/form": "^2.8 || ^3.0 || ^4.0 || ^5.0",
         "symfony/routing": "^2.8 || ^3.0 || ^4.0 || ^5.0",
-        "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0",
+        "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
         "symfony/templating": "^3.2 || ^5.0",
         "twig/twig": "^2.0 || ^3.0",
         "symfony/security-core": "^2.8 || ^3.0 || ^4.0 || ^5.0"
